@@ -12,7 +12,21 @@ const { Server } = require("socket.io");
 const io = new Server(server);
 const port = process.env.PORT || 3000;
 
-app.use(helmet()); // Secure HTTP headers
+// Enhanced Helmet configuration with custom CSP
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // allow trusted sources
+      styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      connectSrc: ["'self'"],
+      imgSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
+    },
+  })
+);
+
 // Add static middleware to serve files from /Users/tech/Projects/requester/public
 app.use(express.static(path.join(__dirname, "public")));
 
