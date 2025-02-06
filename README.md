@@ -18,7 +18,7 @@ Request Explorer is a tool to inspect and manage HTTP requests in real-time. It 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/request-explorer.git
+   git clone https://github.com/yocmen/request-explorer.git
    cd request-explorer
    ```
 
@@ -41,22 +41,25 @@ Request Explorer is a tool to inspect and manage HTTP requests in real-time. It 
    `http://localhost:3000/`
    A unique explorer URL will be generated. Open that URL in another tab to inspect the requests.
 
-## Project Structure
+## Per-URL Configuration
 
-- `/index.js` – Main server file initializing Express, Socket.IO, and setting up routes.
-- `/views` – Contains EJS templates.
-  - `index.ejs` – Homepage view with the generated explorer URL and stored URLs.
-  - `explorer.ejs` – Displays requests with pagination.
-- `/public/js` – Client-side JavaScript.
-  - `index.js` – Handles IndexedDB operations for fetching stored URLs.
-  - `explorer.js` – Manages IndexedDB, displays, and paginates requests.
-- `/README.md` – Project documentation.
+Each generated URL has its own response configuration stored in an SQLite database. To manage or update the response for a specific URL, navigate to /config/:id (where :id is the UUID). On this page, you can change the status code, response type, and body. This configuration is automatically applied to incoming requests for that URL.
 
 ## Security & Performance
 
 - Enhanced security using Helmet with a custom Content Security Policy.
 - Rate limiting to prevent abuse.
 - IndexedDB is used with pagination to improve performance when handling many requests.
+
+## Contribution Guidelines
+
+We welcome contributions! Please follow these steps to contribute:
+
+1. Fork the repository.
+2. Create a new branch (`git checkout -b feature-branch`).
+3. Make your changes and commit them (`git commit -m 'Add new feature'`).
+4. Push to the branch (`git push origin feature-branch`).
+5. Open a pull request.
 
 ## License
 
