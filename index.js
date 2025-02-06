@@ -20,7 +20,8 @@ app.use(
       scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // allow trusted sources
       styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
       connectSrc: ["'self'"],
-      imgSrc: ["'self'"],
+      // Allow data: URIs for background images
+      imgSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
     },
