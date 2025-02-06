@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Configure Response</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <div class="container py-5">
+      <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+          <h2 class="mb-0">Configure Response for: <%= configId || "N/A" %></h2>
+        </div>
+        <div class="card-body">
+          <form method="POST" action="/config/<%= configId %>">
+            <!-- Common status codes -->
+            <div class="mb-3">
+              <label for="status" class="form-label">Status Code</label>
+              <select class="form-select" id="status" name="status" required>
+                <option value="200" <%= responseConfig.status === 200 ? "selected" : "" %>>200 - OK</option>
+                <option value="201" <%= responseConfig.status === 201 ? "selected" : "" %>>201 - Created</option>
+                <option value="400" <%= responseConfig.status === 400 ? "selected" : "" %>>400 - Bad Request</option>
+                <option value="404" <%= responseConfig.status === 404 ? "selected" : "" %>>404 - Not Found</option>
+                <option value="500" <%= responseConfig.status === 500 ? "selected" : "" %>>500 - Internal Server Error</option>
+              </select>
+            </div>
+            <!-- Response type options -->
+            <div class="mb-3">
+              <label for="contentType" class="form-label">Response Type</label>
+              <select class="form-select" id="contentType" name="contentType" required>
+                <option value="text" <%= responseConfig.contentType === "text" ? "selected" : "" %>>Text</option>
+                <option value="json" <%= responseConfig.contentType === "json" ? "selected" : "" %>>JSON</option>
+                <option value="xml" <%= responseConfig.contentType === "xml" ? "selected" : "" %>>XML</option>
+              </select>
+            </div>
+            <!-- Response body -->
+            <div class="mb-3">
+              <label for="body" class="form-label">Response Body</label>
+              <textarea class="form-control" id="body" name="body" rows="3" required><%= responseConfig.body %></textarea>
+            </div>
+            <div class="d-flex justify-content-between">
+              <a href="/r/<%= configId %>" class="btn btn-secondary">Back</a>
+              <button type="submit" class="btn btn-primary">Save Configuration</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
+      <div id="liveToast" class="toast fade align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body">Configuration saved successfully!</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      (function () {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("status") === "ok") {
+          const toastEl = document.getElementById("liveToast");
+          const toast = new bootstrap.Toast(toastEl);
+          toast.show();
+        }
+
+        // Update textarea placeholder based on selected type
+        const contentTypeEl = document.getElementById("contentType");
+        const bodyEl = document.getElementById("body");
+        function updatePlaceholder() {
+          switch (contentTypeEl.value) {
+            case "json":
+              bodyEl.placeholder = '{"message": "Hello world"}';
+              break;
+            case "xml":
+              bodyEl.placeholder = '<message>Hello world</message>';
+              break;
+            default:
+              bodyEl.placeholder = "Enter plain text...";
+              break;
+          }
+        }
+        contentTypeEl.addEventListener("change", updatePlaceholder);
+        updatePlaceholder();
+      })();
+    </script>
+  </body>
+</html>

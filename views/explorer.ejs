@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <title>Request Explorer - <%= id %></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" />
     <style>
       pre {
         background-color: #f8f9fa;
@@ -13,7 +14,13 @@
   </head>
   <body class="bg-light">
     <div class="container p-5" id="requestsContainer">
-      <h1 class="mb-4">Requests for ID: <%= id %></h1>
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="mb-0">Requests for ID: <%= id %></h1>
+        <!-- New button to configure response for this ID -->
+        <a class="btn btn-secondary" href="/config/<%= id %>">
+          <i class="bi-gear"></i>
+        </a>
+      </div>
       <!-- Placeholder for requests; rendered by client-side JS -->
     </div>
     <!-- Socket.IO client code added below -->

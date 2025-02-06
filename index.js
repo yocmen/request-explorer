@@ -5,6 +5,7 @@ const { v4: uuidv4 } = require("uuid");
 const path = require("path");
 const http = require("http");
 const rateLimit = require("express-rate-limit"); // New import
+const { getConfig, setConfig } = require("./db");
 
 const app = express();
 const server = http.createServer(app); // wrap express in http server
@@ -17,13 +18,14 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net"], // allow trusted sources
-      styleSrc: ["'self'", "https://cdn.jsdelivr.net"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+      styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
       connectSrc: ["'self'"],
       // Allow data: URIs for background images
       imgSrc: ["'self'", "data:"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: [],
+      frameAncestors: ["'none'"],
     },
   })
 );
@@ -72,9 +74,40 @@ app.get("/r/:id", (req, res) => {
   res.render("explorer", { id, requests: [] });
 });
 
-// Catch-all route: simply emit the request to connected clients.
-app.all("/r/:id", requestLimiter, (req, res) => {
-  const id = req.params.id;
+// Provide config by ID
+app.get("/config/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    let row = await getConfig(id);
+    if (!row) {
+      // Default config on first usage
+      row = { id, status: 200, body: "Request logged", contentType: "text" };
+    }
+    res.render("config", { responseConfig: row, configId: id });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error retrieving configuration.");
+  }
+});
+
+app.post("/config/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status, body, contentType } = req.body;
+  try {
+    await setConfig(id, {
+      status: Number(status) || 200,
+      body: body || "Request logged",
+      contentType: contentType || "text",
+    });
+    res.redirect(`/config/${id}?status=ok`);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error saving configuration.");
+  }
+});
+
+app.all("/r/:id", requestLimiter, async (req, res) => {
+  const { id } = req.params;
   const reqInfo = {
     id: uuidv4(), // assign a unique id for this request
     method: req.method,
@@ -84,8 +117,32 @@ app.all("/r/:id", requestLimiter, (req, res) => {
     timestamp: new Date(),
   };
   io.to(id).emit("new_request", reqInfo);
-  res.status(200).send("Request logged");
+
+  try {
+    let row = await getConfig(id);
+    if (!row) {
+      // Fallback if none is configured for that ID
+      row = { status: 200, body: "Request logged", contentType: "text" };
+    }
+    res.setHeader("Content-Type", getMimeType(row.contentType));
+    res.status(row.status).send(row.body);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error.");
+  }
 });
+
+// Helper to get MIME type by config.
+function getMimeType(type) {
+  switch (type) {
+    case "json":
+      return "application/json";
+    case "xml":
+      return "application/xml";
+    default:
+      return "text/plain";
+  }
+}
 
 // Remove the DELETE endpoint since deletion is handled client-side.
 
