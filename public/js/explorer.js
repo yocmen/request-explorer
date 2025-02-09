@@ -122,7 +122,8 @@ async function renderRequests() {
                   : ""
               }
               ${
-                req.body && Object.keys(req.body).length
+                req.body &&
+                ((typeof req.body === "object" && Object.keys(req.body).length > 0) || (typeof req.body === "string" && req.body.trim() !== ""))
                   ? `<p><strong>Body:</strong></p>
                      ${
                        req.headers["content-type"] && req.headers["content-type"].includes("application/json")

@@ -40,6 +40,8 @@ app.set("view engine", "ejs");
 // Middleware to capture text and json bodies.
 app.use(bodyParser.json({ limit: "1mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "1mb" }));
+// Add text parser for 'text/plain'
+app.use(bodyParser.text({ type: "text/plain" }));
 
 // Apply rate limiter to prevent endpoint abuse.
 const requestLimiter = rateLimit({
