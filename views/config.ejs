@@ -3,20 +3,19 @@
   <head>
     <meta charset="UTF-8" />
     <title>Configure Response</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="/styles.css" rel="stylesheet" />
   </head>
-  <body>
-    <div class="container py-5">
-      <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-          <h2 class="mb-0">Configure Response for: <%= configId || "N/A" %></h2>
+  <body class="bg-gray-50">
+    <div class="container mx-auto py-12 px-4">
+      <div class="bg-white rounded-lg shadow-md">
+        <div class="bg-blue-600 text-white p-4 rounded-t-lg">
+          <h2 class="text-xl font-semibold">Configure Response for: <%= configId || "N/A" %></h2>
         </div>
-        <div class="card-body">
+        <div class="p-6">
           <form method="POST" action="/config/<%= configId %>">
-            <!-- Common status codes -->
-            <div class="mb-3">
-              <label for="status" class="form-label">Status Code</label>
-              <select class="form-select" id="status" name="status" required>
+            <div class="mb-6">
+              <label for="status" class="block text-sm font-medium text-gray-700 mb-2">Status Code</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="status" name="status" required>
                 <option value="200" <%= responseConfig.status === 200 ? "selected" : "" %>>200 - OK</option>
                 <option value="201" <%= responseConfig.status === 201 ? "selected" : "" %>>201 - Created</option>
                 <option value="400" <%= responseConfig.status === 400 ? "selected" : "" %>>400 - Bad Request</option>
@@ -24,23 +23,21 @@
                 <option value="500" <%= responseConfig.status === 500 ? "selected" : "" %>>500 - Internal Server Error</option>
               </select>
             </div>
-            <!-- Response type options -->
-            <div class="mb-3">
-              <label for="contentType" class="form-label">Response Type</label>
-              <select class="form-select" id="contentType" name="contentType" required>
+            <div class="mb-6">
+              <label for="contentType" class="block text-sm font-medium text-gray-700 mb-2">Response Type</label>
+              <select class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="contentType" name="contentType" required>
                 <option value="text" <%= responseConfig.contentType === "text" ? "selected" : "" %>>Text</option>
                 <option value="json" <%= responseConfig.contentType === "json" ? "selected" : "" %>>JSON</option>
                 <option value="xml" <%= responseConfig.contentType === "xml" ? "selected" : "" %>>XML</option>
               </select>
             </div>
-            <!-- Response body -->
-            <div class="mb-3">
-              <label for="body" class="form-label">Response Body</label>
-              <textarea class="form-control" id="body" name="body" rows="3" required><%= responseConfig.body %></textarea>
+            <div class="mb-6">
+              <label for="body" class="block text-sm font-medium text-gray-700 mb-2">Response Body</label>
+              <textarea class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" id="body" name="body" rows="3" required><%= responseConfig.body %></textarea>
             </div>
-            <div class="d-flex justify-content-between">
-              <a href="/r/<%= configId %>" class="btn btn-secondary">Back</a>
-              <button type="submit" class="btn btn-primary">Save Configuration</button>
+            <div class="flex justify-between">
+              <a href="/r/<%= configId %>" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded transition duration-200">Back</a>
+              <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded transition duration-200">Save Configuration</button>
             </div>
           </form>
         </div>
@@ -48,23 +45,26 @@
     </div>
 
     <!-- Toast container -->
-    <div class="position-fixed top-0 end-0 p-3" style="z-index: 2000">
-      <div id="liveToast" class="toast fade align-items-center text-white bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="d-flex">
-          <div class="toast-body">Configuration saved successfully!</div>
-          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+    <div class="fixed top-4 right-4 z-50">
+      <div id="liveToast" class="hidden bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg">
+        <div class="flex items-center justify-between">
+          <div>Configuration saved successfully!</div>
+          <button type="button" class="ml-4 text-white hover:text-gray-200" onclick="this.parentElement.parentElement.style.display='none'">
+            ×
+          </button>
         </div>
       </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       (function () {
         const params = new URLSearchParams(window.location.search);
         if (params.get("status") === "ok") {
           const toastEl = document.getElementById("liveToast");
-          const toast = new bootstrap.Toast(toastEl);
-          toast.show();
+          toastEl.style.display = "block";
+          setTimeout(() => {
+            toastEl.style.display = "none";
+          }, 3000);
         }
 
         // Update textarea placeholder based on selected type

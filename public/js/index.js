@@ -41,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
           const link = document.createElement("a");
           link.href = "/r/" + room;
           link.textContent = "http://localhost:3000/r/" + room;
-          link.classList.add("d-block", "mb-1");
+          link.classList.add("block", "mb-1", "text-blue-600", "hover:text-blue-800");
           container.appendChild(link);
         });
       } else {

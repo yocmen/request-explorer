@@ -6,7 +6,7 @@ function sanitize(input) {
   return input.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 }
 
-const roomId = document.querySelector("h1").textContent.split(":")[1].trim();
+const roomId = document.querySelector("h1").dataset.roomId;
 const dbName = "RequestDB";
 const storeName = "requests"; // constant store name for all rooms
 let db;
@@ -89,15 +89,14 @@ const pageSize = 10;
 
 async function renderRequests() {
   const container = document.getElementById("requestsContainer");
-  // Clear previous request cards and pagination controls
-  container.querySelectorAll(".card, .alert, #paginationControls").forEach((el) => el.remove());
+  container.querySelectorAll(".bg-white, .bg-yellow-100, #paginationControls").forEach((el) => el.remove());
 
   try {
     const total = await countRequests();
     const totalPages = Math.ceil(total / pageSize);
     if (total === 0) {
       const warning = document.createElement("div");
-      warning.className = "alert alert-warning";
+      warning.className = "bg-yellow-100 border-l-4 border-yellow-500 p-4 text-yellow-700";
       warning.textContent = "No requests received yet.";
       container.appendChild(warning);
     } else {
@@ -106,36 +105,41 @@ async function renderRequests() {
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .forEach((req) => {
           const card = document.createElement("div");
-          card.className = "card mb-3";
+          card.className = "bg-white rounded-lg shadow-md mb-4";
           card.setAttribute("data-req-id", req.id);
           card.innerHTML = `
-            <div class="card-header d-flex justify-content-between align-items-center">
+            <div class="flex justify-between items-center p-4 border-b">
               <span><strong>${sanitize(req.method)}</strong> at ${new Date(req.timestamp).toLocaleString()}</span>
-              <button type="button" class="btn-close" aria-label="Close"></button>
+              <button type="button" class="text-gray-500 hover:text-gray-700" aria-label="Close">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 011.414 1.414L11.414 10l4.293 4.293a1 1 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 01-1.414-1.414L8.586 10 4.293 5.707a1 1 010-1.414z" clip-rule="evenodd"/>
+                </svg>
+              </button>
             </div>
-            <div class="card-body">
-              <p><strong>Headers:</strong></p>
-              <pre>${sanitize(JSON.stringify(req.headers, null, 2))}</pre>
+            <div class="p-4">
+              <p class="font-semibold mb-2">Headers:</p>
+              <pre class="bg-gray-50 p-2 rounded">${sanitize(JSON.stringify(req.headers, null, 2))}</pre>
               ${
                 Object.keys(req.query).length
-                  ? `<p><strong>Query Parameters:</strong></p><pre>${sanitize(JSON.stringify(req.query, null, 2))}</pre>`
+                  ? `<p class="font-semibold mt-4 mb-2">Query Parameters:</p><pre class="bg-gray-50 p-2 rounded">${sanitize(
+                      JSON.stringify(req.query, null, 2)
+                    )}</pre>`
                   : ""
               }
               ${
                 req.body && Object.keys(req.body).length
-                  ? `<p><strong>Body:</strong></p>
+                  ? `<p class="font-semibold mt-4 mb-2">Body:</p>
                      ${
                        req.headers["content-type"] && req.headers["content-type"].includes("application/json")
-                         ? `<pre>${sanitize(JSON.stringify(req.body, null, 2))}</pre>`
-                         : `<pre>${sanitize(req.body)}</pre>`
+                         ? `<pre class="bg-gray-50 p-2 rounded">${sanitize(JSON.stringify(req.body, null, 2))}</pre>`
+                         : `<pre class="bg-gray-50 p-2 rounded">${sanitize(req.body)}</pre>`
                      }`
                   : ""
               }
             </div>
           `;
           container.appendChild(card);
-          // Attach event listener to close button.
-          const closeBtn = card.querySelector(".btn-close");
+          const closeBtn = card.querySelector("button");
           closeBtn.addEventListener("click", () => removeRequest(card));
         });
       renderPaginationControls(totalPages);
@@ -150,13 +154,13 @@ function renderPaginationControls(totalPages) {
   if (!paginationEl) {
     paginationEl = document.createElement("div");
     paginationEl.id = "paginationControls";
-    paginationEl.className = "mt-3 d-flex justify-content-center align-items-center gap-3";
+    paginationEl.className = "mt-6 flex justify-center items-center space-x-4";
     document.getElementById("requestsContainer").appendChild(paginationEl);
   }
   paginationEl.innerHTML = "";
 
   const prevBtn = document.createElement("button");
-  prevBtn.className = "btn btn-primary";
+  prevBtn.className = "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50";
   prevBtn.textContent = "Prev";
   prevBtn.disabled = currentPage <= 1;
   prevBtn.addEventListener("click", () => {
@@ -168,11 +172,12 @@ function renderPaginationControls(totalPages) {
   paginationEl.appendChild(prevBtn);
 
   const pageIndicator = document.createElement("span");
+  pageIndicator.className = "text-gray-700";
   pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
   paginationEl.appendChild(pageIndicator);
 
   const nextBtn = document.createElement("button");
-  nextBtn.className = "btn btn-primary";
+  nextBtn.className = "bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded disabled:opacity-50";
   nextBtn.textContent = "Next";
   nextBtn.disabled = currentPage >= totalPages;
   nextBtn.addEventListener("click", () => {
