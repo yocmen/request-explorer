@@ -13,7 +13,11 @@ A simple tool to inspect and manage HTTP requests with a modern interface.
 1. Clone the repository and navigate to the project directory:
 
    ```bash
-   cd /Users/tech/Projects/requester
+   git clone https://github.com/yocmen/request-explorer.git
+   ```
+
+   ```bash
+   cd request-explorer
    ```
 
 2. Install dependencies:
