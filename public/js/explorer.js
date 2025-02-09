@@ -115,7 +115,7 @@ async function renderRequests() {
             </div>
             <div class="card-body">
               <p><strong>Headers:</strong></p>
-              <pre>${sanitize(JSON.stringify(req.headers, null, 2))}</pre>
+              <pre><code class="json">${sanitize(JSON.stringify(req.headers, null, 2))}</code></pre>
               ${
                 Object.keys(req.query).length
                   ? `<p><strong>Query Parameters:</strong></p><pre>${sanitize(JSON.stringify(req.query, null, 2))}</pre>`
@@ -137,10 +137,10 @@ async function renderRequests() {
           card.querySelector(".btn-close").addEventListener("click", () => removeRequest(card));
           // Append card and then apply highlighting if needed.
           container.appendChild(card);
-          const jsonCode = card.querySelector("code.json");
-          if (jsonCode) {
-            hljs.highlightElement(jsonCode);
-          }
+          const jsonElements = card.querySelectorAll("code.json");
+          jsonElements.forEach((el) => {
+            hljs.highlightElement(el);
+          });
         });
       renderPaginationControls(totalPages);
     }
