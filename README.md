@@ -1,66 +1,62 @@
 # Request Explorer
 
-Request Explorer is a tool to inspect and manage HTTP requests in real-time. It uses Socket.IO and IndexedDB to display and store incoming requests, and offers features like pagination, request deletion, and dynamic URL generation.
+A simple tool to inspect and manage HTTP requests with a modern interface.
 
-## Technologies & Packages
+## Features
 
-- **Node.js** and **Express** – Server framework.
-- **EJS** – Templating engine.
-- **Socket.IO** – Real-time communication.
-- **IndexedDB** – Browser-based database for storing requests.
-- **Helmet** – Enhances security with HTTP headers and custom Content Security Policy.
-- **UUID** – Generates unique IDs.
-- **Express-rate-limit** – Protects endpoints from abuse.
-- **Bootstrap 5** – For responsive UI styling.
+- **Modern UI:** Uses Tailwind CSS with gradient backgrounds, rounded cards, and smooth transitions.
+- **Real-time Updates:** Integrated with Socket.IO for live request updates.
+- **Configurable Response:** Easily customize HTTP response settings via an intuitive configuration page.
 
-## Installation & Local Setup
+## Setup
 
-1. **Clone the repository:**
+1. Clone the repository and navigate to the project directory:
 
    ```bash
-   git clone https://github.com/yocmen/request-explorer.git
-   cd request-explorer
+   cd /Users/tech/Projects/requester
    ```
 
-2. **Install dependencies:**
+2. Install dependencies:
 
    ```bash
    yarn install
    ```
 
-3. **Run the application:**
+3. Build the CSS using Tailwind CSS:
+
+   ```bash
+   yarn build:css
+   ```
+
+   This will watch for changes and rebuild `/public/styles.css`.
+
+4. Start the server:
 
    ```bash
    yarn start
    ```
 
-   The server will start on port 3000 (or the port specified by the environment).
+## File Structure Overview
 
-4. **Access the application:**
-   Open a browser and navigate to:
-   `http://localhost:3000/`
-   A unique explorer URL will be generated. Open that URL in another tab to inspect the requests.
+- **/views/**
+  Contains EJS templates for the homepage, explorer, and configuration pages using the new modern look.
 
-## Per-URL Configuration
+- **/src/styles.css**
+  Tailwind’s base, components, and utilities are imported here.
 
-Each generated URL has its own response configuration stored in an SQLite database. To manage or update the response for a specific URL, navigate to /config/:id (where :id is the UUID). On this page, you can change the status code, response type, and body. This configuration is automatically applied to incoming requests for that URL.
+- **/public/js/**
+  Includes JavaScript for client-side interactions (e.g., fetching stored URLs, rendering requests).
 
-## Security & Performance
+- **tailwind.config.js**
+  Contains content paths and a safelist to ensure dynamically built classes are included.
 
-- Enhanced security using Helmet with a custom Content Security Policy.
-- Rate limiting to prevent abuse.
-- IndexedDB is used with pagination to improve performance when handling many requests.
+## Usage
 
-## Contribution Guidelines
-
-We welcome contributions! Please follow these steps to contribute:
-
-1. Fork the repository.
-2. Create a new branch (`git checkout -b feature-branch`).
-3. Make your changes and commit them (`git commit -m 'Add new feature'`).
-4. Push to the branch (`git push origin feature-branch`).
-5. Open a pull request.
+- Open your browser to `http://localhost:3000/`
+- A unique Request Explorer URL will be generated.
+- Visit the unique URL to inspect live HTTP requests.
+- Configure your response at `http://localhost:3000/config/<uniqueId>`.
 
 ## License
 
-[MIT](LICENSE)
+MIT
