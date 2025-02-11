@@ -96,8 +96,13 @@ app.post("/config/:id", async (req, res) => {
   const { id } = req.params;
   const { status, body, contentType } = req.body;
   try {
+    const statusCode = parseInt(status);
+    if (isNaN(statusCode) || statusCode < 100 || statusCode > 599) {
+      return res.status(400).send('Invalid status code. Must be between 100 and 599.');
+    }
+
     await setConfig(id, {
-      status: Number(status) || 200,
+      status: statusCode,
       body: body || "Request logged",
       contentType: contentType || "text",
     });
