@@ -265,6 +265,32 @@ function deleteRequestFromDB(reqId) {
   });
 }
 
+// Delete all requests for this room from DB
+function deleteAllRequestsFromDB() {
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction(storeName, "readwrite");
+    const store = tx.objectStore(storeName);
+    const index = store.index("roomIdx");
+    const keyRange = IDBKeyRange.only(roomId);
+    const cursorRequest = index.openCursor(keyRange);
+    
+    cursorRequest.onsuccess = (event) => {
+      const cursor = event.target.result;
+      if (cursor) {
+        cursor.delete();
+        cursor.continue();
+      } else {
+        resolve();
+      }
+    };
+    
+    cursorRequest.onerror = () => reject("Error deleting all requests.");
+    
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject("Transaction error when deleting all requests.");
+  });
+}
+
 // Remove a request client-side only.
 async function removeRequest(cardElement) {
   const reqId = cardElement.getAttribute("data-req-id");
@@ -276,9 +302,31 @@ async function removeRequest(cardElement) {
   renderRequests();
 }
 
+// Clear all records
+async function clearAllRecords() {
+  if (confirm("Are you sure you want to clear all records? This action cannot be undone.")) {
+    try {
+      await deleteAllRequestsFromDB();
+      currentPage = 1; // Reset to first page
+      renderRequests();
+    } catch (err) {
+      console.error("Failed to clear records:", err);
+      alert("Failed to clear records. Please try again.");
+    }
+  }
+}
+
 // Initialize DB and render stored requests.
 openDB()
-  .then(() => renderRequests())
+  .then(() => {
+    renderRequests();
+    
+    // Add event listener for clear all records button
+    const clearAllBtn = document.getElementById("clearAllRecords");
+    if (clearAllBtn) {
+      clearAllBtn.addEventListener("click", clearAllRecords);
+    }
+  })
   .catch((err) => {
     console.error(err);
   });
