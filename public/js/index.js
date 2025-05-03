@@ -38,11 +38,23 @@ document.addEventListener("DOMContentLoaded", () => {
       container.textContent = "";
       if (rooms.length > 0) {
         rooms.forEach((room) => {
-          const link = document.createElement("a");
-          link.href = "/r/" + room;
-          link.textContent = "http://localhost:3000/r/" + room;
-          link.classList.add("d-block", "mb-1");
-          container.appendChild(link);
+          const urlContainer = document.createElement("div");
+          urlContainer.className = "mb-3 border-b border-gray-100 pb-2";
+
+          // Explorer link
+          const explorerLink = document.createElement("a");
+          explorerLink.href = "/explorer/" + room;
+          explorerLink.textContent = window.location.origin + "/explorer/" + room;
+          explorerLink.classList.add("block", "mb-1", "text-blue-600", "hover:text-blue-800");
+
+          // Request URL info
+          const requestUrl = document.createElement("div");
+          requestUrl.textContent = "Send requests to: " + window.location.origin + "/r/" + room;
+          requestUrl.classList.add("text-sm", "text-gray-600");
+
+          urlContainer.appendChild(explorerLink);
+          urlContainer.appendChild(requestUrl);
+          container.appendChild(urlContainer);
         });
       } else {
         container.textContent = "No stored URLs found.";

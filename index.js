@@ -18,8 +18,8 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
-      styleSrc: ["'self'", "https://cdn.jsdelivr.net", "'unsafe-inline'"],
+      scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+      styleSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
       connectSrc: ["'self'"],
       // Allow data: URIs for background images
       imgSrc: ["'self'", "data:"],
@@ -40,6 +40,8 @@ app.set("view engine", "ejs");
 // Middleware to capture text and json bodies.
 app.use(bodyParser.json({ limit: "1mb" }));
 app.use(bodyParser.urlencoded({ extended: true, limit: "1mb" }));
+// Add text parser for 'text/plain'
+app.use(bodyParser.text({ type: "text/plain" }));
 
 // Apply rate limiter to prevent endpoint abuse.
 const requestLimiter = rateLimit({
@@ -68,8 +70,8 @@ app.get("/", (req, res) => {
   res.render("index", { uniqueId, origin });
 });
 
-// Route to view requests; pass an empty array so client takes over.
-app.get("/r/:id", (req, res) => {
+// New route to view the explorer/request logs
+app.get("/explorer/:id", (req, res) => {
   const id = req.params.id;
   res.render("explorer", { id, requests: [] });
 });
@@ -94,8 +96,13 @@ app.post("/config/:id", async (req, res) => {
   const { id } = req.params;
   const { status, body, contentType } = req.body;
   try {
+    const statusCode = parseInt(status);
+    if (isNaN(statusCode) || statusCode < 100 || statusCode > 599) {
+      return res.status(400).send("Invalid status code. Must be between 100 and 599.");
+    }
+
     await setConfig(id, {
-      status: Number(status) || 200,
+      status: statusCode,
       body: body || "Request logged",
       contentType: contentType || "text",
     });
