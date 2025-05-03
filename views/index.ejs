@@ -11,25 +11,39 @@
         <div class="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-6">
           <div class="flex items-center justify-center">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+              />
             </svg>
             <h1 class="text-3xl font-bold">Request Explorer</h1>
           </div>
           <p class="text-center mt-2 text-blue-100">Quickly inspect and manage your HTTP requests</p>
         </div>
-        
+
         <div class="p-8 space-y-6">
           <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <div class="flex items-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
+                />
               </svg>
               <h2 class="text-xl font-semibold text-gray-800">Your Request Explorer URL</h2>
             </div>
             <div class="bg-white rounded-lg p-4 border border-gray-200">
               <p class="text-gray-700 flex items-center">
                 <span class="mr-2">Access your explorer at:</span>
-                <a href="/r/<%= uniqueId %>" class="text-blue-600 hover:text-blue-800 font-medium"><%= origin %>/r/<%= uniqueId %></a>
+                <a href="/explorer/<%= uniqueId %>" class="text-blue-600 hover:text-blue-800 font-medium"><%= origin %>/explorer/<%= uniqueId %></a>
+              </p>
+              <p class="text-gray-700 mt-2 flex items-center">
+                <span class="mr-2">Send requests to:</span>
+                <span class="font-medium text-gray-800"><%= origin %>/r/<%= uniqueId %></span>
               </p>
             </div>
           </div>
@@ -37,7 +51,12 @@
           <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
             <div class="flex items-center mb-4">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-600 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"
+                />
               </svg>
               <h2 class="text-xl font-semibold text-gray-800">Stored URLs</h2>
             </div>

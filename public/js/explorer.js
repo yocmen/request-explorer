@@ -11,6 +11,44 @@ const dbName = "RequestDB";
 const storeName = "requests"; // constant store name for all rooms
 let db;
 
+// Display and set up the request URL
+function setupRequestUrlSection() {
+  const requestUrlEl = document.getElementById("requestUrl");
+  const copyUrlBtn = document.getElementById("copyUrlBtn");
+  const copyToast = document.getElementById("copyToast");
+  let toastTimeout = null;
+
+  // Display the request URL
+  const requestUrl = `${window.location.origin}/r/${roomId}`;
+  requestUrlEl.textContent = requestUrl;
+
+  // Set up copy button functionality
+  copyUrlBtn.addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText(requestUrl);
+
+      // Clear any existing timeout to prevent multiple fade-outs
+      if (toastTimeout) {
+        clearTimeout(toastTimeout);
+      }
+
+      // Show the toast notification
+      copyToast.style.transform = "scale(1)";
+      copyToast.style.opacity = "1";
+
+      // Hide the toast after 2 seconds
+      toastTimeout = setTimeout(() => {
+        copyToast.style.transform = "scale(0)";
+        copyToast.style.opacity = "0";
+        toastTimeout = null;
+      }, 2000);
+    } catch (err) {
+      console.error("Failed to copy URL:", err);
+      alert("Failed to copy URL to clipboard. Please copy it manually.");
+    }
+  });
+}
+
 // Update openDB() to use version 2.
 function openDB() {
   return new Promise((resolve, reject) => {
@@ -89,14 +127,16 @@ const pageSize = 10;
 
 async function renderRequests() {
   const container = document.getElementById("requestsContainer");
-  container.querySelectorAll(".bg-white, .bg-yellow-100, #paginationControls").forEach((el) => el.remove());
+
+  // Modified selector to avoid removing the URL section
+  container.querySelectorAll(".request-card, .warning-card, #paginationControls").forEach((el) => el.remove());
 
   try {
     const total = await countRequests();
     const totalPages = Math.ceil(total / pageSize);
     if (total === 0) {
       const warning = document.createElement("div");
-      warning.className = "bg-white rounded-lg shadow-md p-6 border border-gray-200";
+      warning.className = "bg-white rounded-lg shadow-md p-6 border border-gray-200 warning-card";
       warning.innerHTML = `
         <div class="flex items-center justify-center text-gray-500">
           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -111,19 +151,20 @@ async function renderRequests() {
         .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
         .forEach((req) => {
           const card = document.createElement("div");
-          card.className = "bg-white rounded-lg shadow-md mb-4 overflow-hidden border border-gray-200 hover:border-blue-300 transition-colors duration-200";
+          card.className =
+            "bg-white rounded-lg shadow-md mb-4 overflow-hidden border border-gray-200 hover:border-blue-300 transition-colors duration-200 request-card";
           card.setAttribute("data-req-id", req.id);
-          
+
           const methodColors = {
-            GET: 'bg-green-100 text-green-800',
-            POST: 'bg-blue-100 text-blue-800',
-            PUT: 'bg-yellow-100 text-yellow-800',
-            DELETE: 'bg-red-100 text-red-800',
-            PATCH: 'bg-purple-100 text-purple-800'
+            GET: "bg-green-100 text-green-800",
+            POST: "bg-blue-100 text-blue-800",
+            PUT: "bg-yellow-100 text-yellow-800",
+            DELETE: "bg-red-100 text-red-800",
+            PATCH: "bg-purple-100 text-purple-800",
           };
-          
-          const methodColor = methodColors[req.method] || 'bg-gray-100 text-gray-800';
-          
+
+          const methodColor = methodColors[req.method] || "bg-gray-100 text-gray-800";
+
           card.innerHTML = `
             <div class="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-gray-50 to-white border-b border-gray-200">
               <div class="flex items-center space-x-4">
@@ -146,7 +187,9 @@ async function renderRequests() {
                   </svg>
                   Headers
                 </h3>
-                <pre class="bg-gray-50 rounded-lg p-4 text-sm overflow-x-auto"><code class="json">${sanitize(JSON.stringify(req.headers, null, 2))}</code></pre>
+                <pre class="bg-gray-50 rounded-lg p-4 text-sm overflow-x-auto"><code class="json">${sanitize(
+                  JSON.stringify(req.headers, null, 2)
+                )}</code></pre>
               </div>
               ${
                 Object.keys(req.query).length
@@ -173,7 +216,9 @@ async function renderRequests() {
                       </h3>
                       ${
                         req.headers["content-type"] && req.headers["content-type"].includes("application/json")
-                          ? `<pre class="bg-gray-50 rounded-lg p-4 text-sm overflow-x-auto"><code class="json">${sanitize(JSON.stringify(req.body, null, 2))}</code></pre>`
+                          ? `<pre class="bg-gray-50 rounded-lg p-4 text-sm overflow-x-auto"><code class="json">${sanitize(
+                              JSON.stringify(req.body, null, 2)
+                            )}</code></pre>`
                           : `<pre class="bg-gray-50 rounded-lg p-4 text-sm overflow-x-auto">${sanitize(req.body)}</pre>`
                       }
                     </div>`
@@ -181,7 +226,7 @@ async function renderRequests() {
               }
             </div>
           `;
-          
+
           card.querySelector("button").addEventListener("click", () => removeRequest(card));
           container.appendChild(card);
           const jsonElements = card.querySelectorAll("code.json");
@@ -209,8 +254,8 @@ function renderPaginationControls(totalPages) {
   const prevBtn = document.createElement("button");
   prevBtn.className = `flex items-center px-4 py-2 text-sm font-medium rounded-lg border ${
     currentPage <= 1
-      ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
-      : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-blue-300'
+      ? "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200"
+      : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-blue-300"
   } transition-colors duration-200`;
   prevBtn.innerHTML = `
     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,8 +280,8 @@ function renderPaginationControls(totalPages) {
   const nextBtn = document.createElement("button");
   nextBtn.className = `flex items-center px-4 py-2 text-sm font-medium rounded-lg border ${
     currentPage >= totalPages
-      ? 'bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200'
-      : 'bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-blue-300'
+      ? "bg-gray-50 text-gray-400 cursor-not-allowed border-gray-200"
+      : "bg-white text-gray-700 hover:bg-gray-50 border-gray-300 hover:border-blue-300"
   } transition-colors duration-200`;
   nextBtn.innerHTML = `
     Next
@@ -273,7 +318,7 @@ function deleteAllRequestsFromDB() {
     const index = store.index("roomIdx");
     const keyRange = IDBKeyRange.only(roomId);
     const cursorRequest = index.openCursor(keyRange);
-    
+
     cursorRequest.onsuccess = (event) => {
       const cursor = event.target.result;
       if (cursor) {
@@ -283,9 +328,9 @@ function deleteAllRequestsFromDB() {
         resolve();
       }
     };
-    
+
     cursorRequest.onerror = () => reject("Error deleting all requests.");
-    
+
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject("Transaction error when deleting all requests.");
   });
@@ -320,12 +365,15 @@ async function clearAllRecords() {
 openDB()
   .then(() => {
     renderRequests();
-    
+
     // Add event listener for clear all records button
     const clearAllBtn = document.getElementById("clearAllRecords");
     if (clearAllBtn) {
       clearAllBtn.addEventListener("click", clearAllRecords);
     }
+
+    // Set up request URL section
+    setupRequestUrlSection();
   })
   .catch((err) => {
     console.error(err);

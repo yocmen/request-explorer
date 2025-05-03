@@ -70,8 +70,8 @@ app.get("/", (req, res) => {
   res.render("index", { uniqueId, origin });
 });
 
-// Route to view requests; pass an empty array so client takes over.
-app.get("/r/:id", (req, res) => {
+// New route to view the explorer/request logs
+app.get("/explorer/:id", (req, res) => {
   const id = req.params.id;
   res.render("explorer", { id, requests: [] });
 });
@@ -98,7 +98,7 @@ app.post("/config/:id", async (req, res) => {
   try {
     const statusCode = parseInt(status);
     if (isNaN(statusCode) || statusCode < 100 || statusCode > 599) {
-      return res.status(400).send('Invalid status code. Must be between 100 and 599.');
+      return res.status(400).send("Invalid status code. Must be between 100 and 599.");
     }
 
     await setConfig(id, {
