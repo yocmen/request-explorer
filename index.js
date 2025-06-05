@@ -84,7 +84,7 @@ io.on("connection", (socket) => {
 // Home page: generate a new unique URL.
 app.get("/", (req, res) => {
   const uniqueId = uuidv4();
-  const origin = req.protocol + "://" + req.get("host"); // Compute full origin
+  const origin = `${req.protocol}://${req.get("host")}`; // Compute full origin
   res.render("index", { uniqueId, origin });
 });
 
