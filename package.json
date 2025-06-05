@@ -15,6 +15,7 @@
   },
   "scripts": {
     "start": "node index.js",
+    "dev": "NODE_ENV=development VALIDATE_REQ_LIMITER=false node index.js",
     "build:css": "tailwindcss -i ./src/styles.css -o ./public/styles.css --watch"
   },
   "devDependencies": {

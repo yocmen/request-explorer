@@ -10,7 +10,13 @@ const { getConfig, setConfig } = require("./db");
 const app = express();
 const server = http.createServer(app); // wrap express in http server
 const { Server } = require("socket.io");
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: process.env.NODE_ENV === "development" ? true : false,
+    methods: ["GET", "POST"],
+  },
+  transports: ["polling", "websocket"],
+});
 const port = process.env.PORT || 3000;
 
 // Enhanced Helmet configuration with custom CSP
@@ -18,8 +24,18 @@ app.use(
   helmet.contentSecurityPolicy({
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
-      styleSrc: ["'self'", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "'unsafe-inline'"],
+      scriptSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "'unsafe-inline'",
+      ],
+      styleSrc: [
+        "'self'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "'unsafe-inline'",
+      ],
       connectSrc: ["'self'"],
       // Allow data: URIs for background images
       imgSrc: ["'self'", "data:"],
@@ -48,6 +64,8 @@ const requestLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute window
   max: 60, // limit each IP to 60 requests per window
   message: "Too many requests, please try again later.",
+  // Disable all validations (JUST FOR DEVELOPMENT)
+  validate: process.env.VALIDATE_REQ_LIMITER || true,
 });
 
 // Remove activeRooms tracking
@@ -87,7 +105,7 @@ app.get("/config/:id", async (req, res) => {
     }
     res.render("config", { responseConfig: row, configId: id });
   } catch (err) {
-    console.error(err);
+    console.info(err);
     res.status(500).send("Error retrieving configuration.");
   }
 });
@@ -98,7 +116,9 @@ app.post("/config/:id", async (req, res) => {
   try {
     const statusCode = parseInt(status);
     if (isNaN(statusCode) || statusCode < 100 || statusCode > 599) {
-      return res.status(400).send("Invalid status code. Must be between 100 and 599.");
+      return res
+        .status(400)
+        .send("Invalid status code. Must be between 100 and 599.");
     }
 
     await setConfig(id, {
@@ -108,7 +128,7 @@ app.post("/config/:id", async (req, res) => {
     });
     res.redirect(`/config/${id}?status=ok`);
   } catch (err) {
-    console.error(err);
+    console.info(err);
     res.status(500).send("Error saving configuration.");
   }
 });
@@ -134,7 +154,7 @@ app.all("/r/:id", requestLimiter, async (req, res) => {
     res.setHeader("Content-Type", getMimeType(row.contentType));
     res.status(row.status).send(row.body);
   } catch (err) {
-    console.error(err);
+    console.info(err);
     res.status(500).send("Server error.");
   }
 });
@@ -154,5 +174,5 @@ function getMimeType(type) {
 // Remove the DELETE endpoint since deletion is handled client-side.
 
 server.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
+  console.info(`Server listening on port ${port}`);
 });
